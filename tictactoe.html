@@ -11,12 +11,19 @@
         font-size: 100px;
     }
     
+    h1 {
+        float: right;
+        margin-right: 40%;
+        margin-top: 10%;
+    }
+    
     .win {
         color: red;
     }
 </style>
 </head>
 <body>
+    <h1 id="winner"></h1>
     <table>
         <tr>
             <td><div></div></td>
@@ -45,6 +52,8 @@
     var row2 = [0,0,0];
     var board = [row0,row1,row2];
     var over = false;
+    var playerTurn = true;
+    var boardFull;
     var currID;
     
     var clsElements = document.querySelectorAll("div");
@@ -54,7 +63,7 @@
     
     $(document).ready(function(){
         $("div").click(function(){
-            if ($(this).html() == "" && !over) {
+            if ($(this).html() == "" && !over && playerTurn) {
                 $(this).text(teams[player]);
                 currID = $(this).attr("id");
                 move(currID.substr(0,1),currID.substr(1));
@@ -66,9 +75,12 @@
     function move(x,y) {
         board[x][y] = teams[player];
         checkWinner();
+        compMove();
     }
     
     function checkWinner() {
+        boardFull = true;
+        
         for (var i = 0; i < 3; i++)
             if (board[i][0] == board[i][1] && board[i][0] == board[i][2] && board[i][0] != 0)
                 gameOver(board[i][0]);
@@ -79,6 +91,15 @@
             gameOver(board[0][0]);
         if (board[0][2] == board[1][1] && board[0][2] == board[2][0] && board[0][2] != 0)
             gameOver(board[0][2]);
+        for (var i = 0; i < clsElements.length; i++) 
+            if(clsElements[i].innerHTML == "")
+                boardFull = false;
+        if (boardFull)
+            gameOver("draw");
+    }
+    
+    function compMove() {
+        
     }
     
     function restart() {
@@ -89,11 +110,15 @@
         board = [row0,row1,row2];
         for (var i = 0; i < clsElements.length; i++) 
             clsElements[i].innerHTML = "";
+        document.getElementById("winner").innerHTML = "";
         over = false;
     }
     
     function gameOver(given) {
-        alert(given + " Wins!");
+        if (given != "draw")
+            document.getElementById("winner").innerHTML = given + " Wins!";
+        else
+            document.getElementById("winner").innerHTML ="Draw! No winner.";
         over = true;
     }
 </script>
