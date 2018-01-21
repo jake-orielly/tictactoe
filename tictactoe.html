@@ -45,6 +45,18 @@
     </body>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script>
+    var movesTree = {1:{data:4,2:8,3:8,5:8,6:8,7:8,8:{data:6,2:3,3:2,5:3,7:3}},
+                     2:{data:6,1:3,3:{data:8,2:7,4:7,5:7,7:4},4:3,5:3,7:3,8:3},
+                     3:{data:4,1:8,2:8,5:8,6:8,7:8,8:{data:2,1:6,5:6,6:1,7:1}},
+                     4:{data:8,1:{data:7,2:6,3:6,5:6,6:{data:2,3:5,5:3}},2:{data:6,1:3,3:7,5:7,7:3},3:{data:5,1:5,2:{data:6,1:7,7:1},6:5,7:5},
+                       5:{data:3,1:6,2:6,6:{data:2,1:7,7:1},7:6},6:{data:2,1:5,3:1,5:1,7:5},
+                       7:{data:1,2:{data:6,3:5,5:3},3:2,5:2,6:2}},
+                     5:{data:4,1:8,2:8,3:8,6:8,7:8,8:{data:2,1:6,3:1,6:1,7:1}},
+                     6:{data:2,1:{data:8,3:5,4:5,5:4,7:5},3:1,4:1,5:1,7:1,8:1},
+                     7:{data:4,1:8,2:8,3:8,5:8,6:8,8:{data:6,1:3,2:3,3:2,5:3}},
+                     8:{data:2,1:{data:6,3:4,4:3,5:3,7:3},3:1,4:1,5:1,6:1,7:1}};
+</script>
+<script>
     var player = 0;
     var teams = ["X","O"];
     var row0 = [0,0,0];
@@ -53,29 +65,41 @@
     var board = [row0,row1,row2];
     var over = false;
     var playerTurn = true;
+    var locations = [[0,0],[0,1],[0,2],[1,0],[1,1],[1,2],[2,0],[2,1],[2,2]];
+    var moves = [];
     var boardFull;
     var currID;
+    var loc;
     
     var clsElements = document.querySelectorAll("div");
     
     for (var i = 0; i < clsElements.length; i++) 
         clsElements[i].id = "" + parseInt(i/3) + i%3;
     
+    compMove();
     $(document).ready(function(){
         $("div").click(function(){
             if ($(this).html() == "" && !over && playerTurn) {
-                $(this).text(teams[player]);
                 currID = $(this).attr("id");
                 move(currID.substr(0,1),currID.substr(1));
-                player = (player+1)%2;
+                moves.push(getLocation(currID.substr(0,1),currID.substr(1)));
+                compMove();
             }
         });
     });
     
     function move(x,y) {
+        document.getElementById("" + x + y).innerHTML = teams[player];
         board[x][y] = teams[player];
         checkWinner();
-        compMove();
+        player = (player+1)%2;
+    }
+    
+    function getLocation (x,y) {
+        for (var i = 0; i < locations.length; i++) {
+            if (locations[i][0] == x && locations[i][1] == y)
+                return i;
+        }
     }
     
     function checkWinner() {
@@ -94,12 +118,33 @@
         for (var i = 0; i < clsElements.length; i++) 
             if(clsElements[i].innerHTML == "")
                 boardFull = false;
-        if (boardFull)
+        if (boardFull && !over)
             gameOver("draw");
     }
     
     function compMove() {
+        loc = pickCompMove(moves);
+        move(locations[loc][0],locations[loc][1]);
+    }
+    
+    function pickCompMove(given) {
+        var currMove;
         
+        if (given == 0)
+            return 0;
+        else {
+            currMove = movesTree[moves[0]];
+            
+            if (moves.length > 1) {
+                for (var i = 1; i < moves.length; i++)
+                    currMove = currMove[moves[i]];
+            }
+            
+            if (currMove.hasOwnProperty("data"))
+                return currMove.data;
+            else
+                return currMove;
+        }
     }
     
     function restart() {
@@ -108,11 +153,13 @@
         row1 = [0,0,0];
         row2 = [0,0,0];
         board = [row0,row1,row2];
+        moves = [];
         for (var i = 0; i < clsElements.length; i++) 
             clsElements[i].innerHTML = "";
         document.getElementById("winner").innerHTML = "";
         over = false;
-    }
+        compMove();
+    } 
     
     function gameOver(given) {
         if (given != "draw")
