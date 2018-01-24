@@ -113,17 +113,9 @@
     </body>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script>
-    var movesTreeFirst = {1:{data:4,8:{data:6}},
-                     2:{data:6,3:{data:8}},
-                     3:{data:4,1:8,2:8,5:8,6:8,7:8,8:{data:2,1:6,5:6,6:1,7:1}},
-                     4:{data:8,1:{data:7,2:6,3:6,5:6,6:{data:2,3:5,5:3}},2:{data:6,1:3,3:7,5:7,7:3},3:{data:5,1:2,2:{data:6,1:7,7:1},6:2,7:2},
-                       5:{data:3,1:6,6:{data:2},7:6},6:{data:2,1:5,3:1,5:1,7:5},
-                       7:{data:1,2:{data:6,3:5,5:3}}},
-                     5:{data:4,1:8,2:8,3:8,6:8,7:8,8:{data:2,1:6,3:1,6:1,7:1}},
-                     6:{data:2,1:{data:8,3:5,4:5,5:4,7:5},3:1,4:1,5:1,7:1,8:1},
-                     7:{data:4,1:8,2:8,3:8,5:8,6:8,8:{data:6,1:3,2:3,3:2,5:3}},
-                     8:{data:2,1:{data:6,4:3,5:3,7:3},3:1,4:1,5:1,6:1,7:1}};
-    var movesTreeSecond = {0:{data:4},1:{data:4},2:{data:4},3:{data:4},4:{data:1},5:{data:4},6:{data:4},7:{data:4},8:{data:4}};
+    var movesTreeFirst = {1:{data:4,8:6},2:{data:6,3:8},3:{data:4,8:2},4:{data:8,1:{data:7,6:2},2:6,3:{data:5,2:6},
+                        5:{data:3,6:2},6:2,7:{data:1,2:6}},5:{data:4,8:2},6:{data:2,1:8},7:{data:4,8:6},8:{data:2,1:6}};
+    var movesTreeSecond = {0:{data:4,1:{data:2,6:3},2:{data:1,7:3},3:{data:6,2:1},5:{data:8,1:2,2:1,3:6,6:3,7:6},6:{data:3,5:1}},1:{data:4},2:{data:4},3:{data:4},4:{data:1},5:{data:4},6:{data:4},7:{data:4},8:{data:4}};
 </script>
 <script>
     var player = 0;
@@ -211,8 +203,10 @@
     }
     
     function compMove() {
-        loc = pickCompMove(moves);
-        move(locations[loc][0],locations[loc][1]);
+        if (!over) {
+            loc = pickCompMove(moves);
+            move(locations[loc][0],locations[loc][1]);
+        }
     }
     
     function pickCompMove(given) {
@@ -249,10 +243,10 @@
                 if (board[i][j] == "X")
                     compWinTotal++;
                 else if (board[i][j] == "O")
-                    compWinTotal = -1;
+                    compWinTotal--;
             }
 
-            if (compWinTotal == 2) {
+            if (compWinTotal == 2 || compWinTotal == -2) {
                 for (var j = 0; j < 3; j++) {
                     if (board[i][j] == "0")
                         return getLocation(i,j);
@@ -264,10 +258,10 @@
                 if (board[j][i] == "X")
                     compWinTotal++;
                 else if (board[j][i] == "O")
-                    compWinTotal = -1;
+                    compWinTotal--;
             }
 
-            if (compWinTotal == 2) {
+            if (compWinTotal == 2 || compWinTotal == -2) {
                 for (var j = 0; j < 3; j++) {
                     if (board[j][i] == "0")
                         return getLocation(j,i);
@@ -278,10 +272,10 @@
             if (board[i][i] == "X")
                 compWinTotal++;
             else if (board[i][i] == "O")
-                compWinTotal = -1;
+                compWinTotal--;
         }
 
-        if (compWinTotal == 2) {
+        if (compWinTotal == 2 || compWinTotal == -2) {
             for (var i = 0; i < 3; i++)
                 if (board[i][i] == "0") {
                     return getLocation(i,i);
@@ -293,10 +287,10 @@
             if (board[i][2-i] == "X")
                 compWinTotal++;
             else if (board[i][2-i] == "O")
-                compWinTotal = -1;
+                compWinTotal--;
         }
 
-        if (compWinTotal == 2) {
+        if (compWinTotal == 2 || compWinTotal == -2) {
             for (var i = 0; i < 3; i++)
                 if (board[i][2-i] == "0") {
                     return getLocation(i,2-i);
@@ -310,7 +304,7 @@
                     compWinTotal--;
         }
         
-        if (compWinTotal == -1) {
+        if (compWinTotal >= -2) {
             for (var i = 0; i < 3; i++) {
                 for (var j = 0; j < 3; j++)
                     if (board[i][j] == "0")
