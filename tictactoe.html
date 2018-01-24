@@ -2,7 +2,7 @@
 <html>
 <head>
 <style>
-    div {
+    .boardSquare {
         width: 100px;
         height: 100px;
         border-style: solid;
@@ -22,36 +22,98 @@
     }
     
     .restart {
-        margin-top: 5%;
-        margin-left: 100px;
         font-size: 32px;
     }
+    
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 60px;
+        height: 34px;
+        float: left;
+    }
+
+    .switch input {display:none;}
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        -webkit-transition: .15s;
+        transition: .15s;
+    }
+
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 26px;
+        width: 26px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        -webkit-transition: .15s;
+        transition: .15s;
+    }
+
+    input:checked + .slider:before {
+        -webkit-transform: translateX(26px);
+        -ms-transform: translateX(26px);
+        transform: translateX(26px);
+    }
+    
+    .interface {
+        margin-top: 30px;
+    }
+    
+    p {
+        float: left;
+        margin-left: 20px;
+        margin-right: 70%;
+        margin-top: 3px;
+        font-size: 24px;
+    }
+    
 </style>
 </head>
 <body>
     <h1 id="winner"></h1>
     <table>
         <tr>
-            <td><div></div></td>
-            <td><div></div></td>
-            <td><div></div></td>
+            <td><div class="boardSquare"></div></td>
+            <td><div class="boardSquare"></div></td>
+            <td><div class="boardSquare"></div></td>
         </tr>
         <tr>
-            <td><div></div></td>
-            <td><div></div></td>
-            <td><div></div></td>
+            <td><div class="boardSquare"></div></td>
+            <td><div class="boardSquare"></div></td>
+            <td><div class="boardSquare"></div></td>
         </tr>
         <tr>
-            <td><div></div></td>
-            <td><div></div></td>
-            <td><div></div></td>
+            <td><div class="boardSquare"></div></td>
+            <td><div class="boardSquare"></div></td>
+            <td><div class="boardSquare"></div></td>
         </tr>
     </table>
-    <button class="restart" onClick="restart()">Restart</button>
+    <div class="interface">
+        <div>
+            <label class="switch">
+              <input type="checkbox" onclick="compFirstToggle()">
+              <span class="slider"></span>
+            </label>
+            <p id="compFirst">Computer goes first.</p>
+        </div>
+        <div>
+            <button class="restart" onClick="restart()">Restart</button>
+        </div>
+    </div>
     </body>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script>
-    var movesTree = {1:{data:4,2:8,3:8,5:8,6:8,7:8,8:{data:6,2:3,3:2,5:3,7:3}},
+    var movesTreeFirst = {1:{data:4,2:8,3:8,5:8,6:8,7:8,8:{data:6,2:3,3:2,5:3,7:3}},
                      2:{data:6,1:3,3:{data:8,2:7,4:7,5:7,7:4},4:3,5:3,7:3,8:3},
                      3:{data:4,1:8,2:8,5:8,6:8,7:8,8:{data:2,1:6,5:6,6:1,7:1}},
                      4:{data:8,1:{data:7,2:6,3:6,5:6,6:{data:2,3:5,5:3}},2:{data:6,1:3,3:7,5:7,7:3},3:{data:5,1:2,2:{data:6,1:7,7:1},6:2,7:2},
@@ -61,6 +123,7 @@
                      6:{data:2,1:{data:8,3:5,4:5,5:4,7:5},3:1,4:1,5:1,7:1,8:1},
                      7:{data:4,1:8,2:8,3:8,5:8,6:8,8:{data:6,1:3,2:3,3:2,5:3}},
                      8:{data:2,1:{data:6,3:4,4:3,5:3,7:3},3:1,4:1,5:1,6:1,7:1}};
+    var movesTreeSecond = {0:{data:4},1:{data:4},2:{data:4},3:{data:4},4:{data:1},5:{data:4},6:{data:4},7:{data:4},8:{data:4}};
 </script>
 <script>
     var player = 0;
@@ -76,15 +139,17 @@
     var boardFull;
     var currID;
     var loc;
+    var computerFirst = true;
+    var movesTree = movesTreeFirst;
     
-    var clsElements = document.querySelectorAll("div");
+    var clsElements = document.querySelectorAll(".boardSquare");
     
     for (var i = 0; i < clsElements.length; i++) 
         clsElements[i].id = "" + parseInt(i/3) + i%3;
     
     compMove();
     $(document).ready(function(){
-        $("div").click(function(){
+        $(".boardSquare").click(function(){
             if ($(this).html() == "" && !over && playerTurn) {
                 currID = $(this).attr("id");
                 move(currID.substr(0,1),currID.substr(1));
@@ -151,8 +216,7 @@
     
     function pickCompMove(given) {
         var currMove;
-        
-        if (given == 0)
+        if (given == 0 && computerFirst)
             return 0;
         else {
             currMove = movesTree[moves[0]];
@@ -170,7 +234,10 @@
     }
     
     function restart() {
-        player = 0;
+        if (computerFirst)
+            player = 0;
+        else 
+            player = 1;
         row0 = [0,0,0];
         row1 = [0,0,0];
         row2 = [0,0,0];
@@ -180,9 +247,14 @@
             clsElements[i].innerHTML = "";
         document.getElementById("winner").innerHTML = "";
         over = false;
-        compMove();
         for (var i = 0; i < clsElements.length; i++) 
             $("#" + parseInt(i/3) + i%3).removeClass("win");
+        if (computerFirst) {
+            movesTree = movesTreeFirst;
+            compMove();
+        }
+        else
+            movesTree = movesTreeSecond;
     } 
     
     function gameOver(given) {
@@ -191,6 +263,15 @@
         else
             document.getElementById("winner").innerHTML ="Draw! No winner.";
         over = true;
+    }
+    
+    function compFirstToggle() {
+        computerFirst = !computerFirst;
+        
+        if (computerFirst)
+            document.getElementById("compFirst").innerHTML = "Computer goes first."
+        else 
+            document.getElementById("compFirst").innerHTML = "Computer goes second."
     }
 </script>
 </html>
