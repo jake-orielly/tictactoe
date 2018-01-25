@@ -22,7 +22,7 @@
     }
     
     .restart {
-        font-size: 32px;
+        font-size: 32px
     }
     
     .switch {
@@ -30,7 +30,7 @@
         display: inline-block;
         width: 60px;
         height: 34px;
-        float: left;
+        float:left;
     }
 
     .switch input {display:none;}
@@ -70,9 +70,7 @@
     }
     
     p {
-        float: left;
-        margin-left: 20px;
-        margin-right: 70%;
+        margin-left: 70px;
         margin-top: 3px;
         font-size: 24px;
     }
@@ -115,7 +113,16 @@
 <script>
     var movesTreeFirst = {1:{data:4,8:6},2:{data:6,3:8},3:{data:4,8:2},4:{data:8,1:{data:7,6:2},2:6,3:{data:5,2:6},
                         5:{data:3,6:2},6:2,7:{data:1,2:6}},5:{data:4,8:2},6:{data:2,1:8},7:{data:4,8:6},8:{data:2,1:6}};
-    var movesTreeSecond = {0:{data:4,1:{data:2,6:3},2:{data:1,7:3},3:{data:6,2:1},5:{data:8,1:2,2:1,3:6,6:3,7:6},6:{data:3,5:1}},1:{data:4},2:{data:4},3:{data:4},4:{data:1},5:{data:4},6:{data:4},7:{data:4},8:{data:4}};
+    var movesTreeSecond = {
+        0:{data:4,1:{6:3},2:{7:3},3:{2:1},5:{data:8,7:6},6:{data:3,5:1},7:{data:8,5:2},8:{data:7}},
+        1:{data:4,3:{data:0,8:2},5:{data:2,6:0},6:{data:2,5:8},7:{data:5,3:8},8:{data:0,3:6}},
+        2:{data:4,0:{7:5},3:{data:6,7:8},6:{data:3},7:{data:6,3:0},8:{3:1}},
+        3:{data:4,1:{data:0,8:6},2:{data:6,7:8},5:{data:1,7:2},7:{data:6,2:0},8:{data:0,1:2}},
+        4:{data:0,1:{8:6},3:{8:2},8:{data:6}},
+        5:{data:4,0:{data:8,7:6},1:{data:2,6:8},3:{data:7,1:6},6:{data:2,1:0},7:{data:8,0:2}},
+        6:{data:4,0:{5:7},1:{data:2,5:8},2:5,5:{data:2,1:0},8:{1:3}},
+        7:{data:4,0:{data:8,5:2},1:{data:3,5:0},2:{data:6,3:0},3:{data:6,2:8},5:{data:8,0:6}},
+        8:{data:4,0:1,1:{data:0,3:6},2:{3:7},3:{data:0,1:2},6:{1:5}}};
 </script>
 <script>
     var player = 0;
@@ -206,6 +213,7 @@
         if (!over) {
             loc = pickCompMove(moves);
             move(locations[loc][0],locations[loc][1]);
+            console.log(2);
         }
     }
     
@@ -217,7 +225,9 @@
             return 0;
         else {
             temp = finalMove();
-            if (!temp) {
+            
+            if (temp == -1) {
+                console.log(1);
                 currMove = movesTree[moves[0]];
 
                 if (moves.length > 1) {
@@ -312,7 +322,7 @@
             }
         }
         
-        return false;
+        return -1;
     }
     
     function restart() {
